@@ -1,0 +1,50 @@
+.board {
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+
+    h2 {
+      margin: 0;
+      color: #333;
+    }
+  }
+}
+
+.chartGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 16px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sortableItem {
+  cursor: move;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.dragHandle {
+  cursor: grab;
+  color: #999;
+  font-size: 16px;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.chartCard {
+  margin-bottom: 16px;
+  height: 100%;
+}
+

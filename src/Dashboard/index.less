@@ -1,0 +1,64 @@
+.dashboard {
+  .header {
+    margin-bottom: 24px;
+    
+    h2 {
+      margin: 0 0 8px 0;
+      color: #333;
+      font-size: 24px;
+      font-weight: 600;
+    }
+    
+    .subtitle {
+      margin: 0;
+      color: #999;
+      font-size: 14px;
+    }
+  }
+
+  .content {
+    min-height: 400px;
+  }
+
+  .kpiRow {
+    margin-bottom: 24px;
+  }
+
+  .kpiCard {
+    height: 100%;
+    transition: all 0.3s;
+    
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transform: translateY(-2px);
+    }
+  }
+
+  .statTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #666;
+    
+    .icon {
+      font-size: 16px;
+      color: #1890ff;
+    }
+  }
+
+  .change {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #999;
+  }
+
+  .chartRow {
+    margin-top: 16px;
+  }
+
+  .chartCard {
+    height: 100%;
+    min-height: 380px;
+  }
+}
