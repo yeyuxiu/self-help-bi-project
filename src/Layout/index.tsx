@@ -17,9 +17,9 @@ const Layout = () => {
 
   const menuItems: MenuProps['items'] = [
     {
-      key: '/dashboard',
+      key: '/custom-template',
       icon: <DashboardOutlined />,
-      label: 'KPI首页',
+      label: '自定义模板',
     },
     {
       key: '/metric-portal',

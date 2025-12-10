@@ -1,7 +1,114 @@
 .metricPortal {
   h2 {
-    margin-bottom: 24px;
+    margin-bottom: 16px;
     color: #333;
+  }
+
+  .configCard {
+    :global(.ant-card-body) {
+      padding: 12px 16px;
+    }
+  }
+
+  .compactForm {
+    width: 100%;
+    :global(.ant-form-item) {
+      margin-bottom: 0;
+    }
+    :global(.ant-form-item-label) {
+      padding: 0;
+      label {
+        font-size: 13px;
+        color: #666;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+    }
+  }
+
+  .filterCard {
+    :global(.ant-card-body) {
+      padding: 12px 16px;
+    }
+  }
+
+  .compactFilterForm {
+    width: 100%;
+    :global(.ant-form-item) {
+      margin-bottom: 0;
+    }
+    :global(.ant-form-item-label) {
+      padding: 0;
+      label {
+        font-size: 13px;
+        color: #666;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+    }
+  }
+
+  .popoverTitle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+  }
+
+  .advancedFilterContent {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .emptyHint {
+    text-align: center;
+    padding: 12px;
+    color: #999;
+    font-size: 12px;
+  }
+
+  .conditionsList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .conditionRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .insightCard {
+    background: linear-gradient(135deg, #f7faff 0%, #ffffff 80%);
+    border: 1px solid #eef3fb;
+    :global(.ant-card-head) {
+      min-height: 36px;
+    }
+    :global(.ant-card-body) {
+      padding: 12px;
+    }
+  }
+
+  .subInfo {
+    margin-top: 6px;
+    color: #8c8c8c;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .dimensionChips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
   }
 }
 

@@ -1,128 +1,147 @@
-import { useState } from 'react';
-import { Card, Form, Select, Button, Space, message } from 'antd';
-import { SaveOutlined, DownloadOutlined } from '@ant-design/icons';
-import ChartView from '@/ChartView';
-import QueryFilter from '@/QueryFilter';
-import AdvancedFilter from '@/Components/AdvancedFilter';
-import DataAggregation from '@/Components/DataAggregation';
-import ChartConfigPanel from '@/Components/ChartConfigPanel';
-import { metrics, mockData, DataPoint, ChartType, chartTypeOptions, ChartConfig } from '@/Data/mockData';
-import { exportToCSV } from '@/Utils/export';
-import styles from './index.less';
+import { useState } from 'react'
+import { Space, message, Form } from 'antd'
+import { Dayjs } from 'dayjs'
+import { mockData, DataPoint, ChartType, ChartConfig } from '@/Data/mockData'
+import { groupByData, aggregateByTime } from '@/Utils/dataAggregation'
+import { FilterCondition } from './type'
+import { applyDateFilter, applyAdvancedFilter } from './utils/filter'
+import ConfigCard from './components/ConfigCard'
+import FilterCard from './components/FilterCard'
+import PreviewCard from './components/PreviewCard'
+import styles from './index.less'
 
 const ReportTemplate = () => {
-  const [form] = Form.useForm();
-  const [selectedMetrics, setSelectedMetrics] = useState<string[]>([]);
-  const [filteredData, setFilteredData] = useState<DataPoint[]>(mockData);
-  const [chartType, setChartType] = useState<ChartType>('line');
-  const [chartConfig, setChartConfig] = useState<ChartConfig>({});
+  const [form] = Form.useForm()
+  const [selectedMetrics, setSelectedMetrics] = useState<string[]>([])
+  const [filteredData, setFilteredData] = useState<DataPoint[]>(mockData)
+  const [chartType, setChartType] = useState<ChartType>('line')
+  const [chartConfig, setChartConfig] = useState<ChartConfig>({})
+  const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null]>([
+    null,
+    null,
+  ])
+  const [conditions, setConditions] = useState<FilterCondition[]>([])
+  const [aggregateType, setAggregateType] = useState<'dimension' | 'time'>(
+    'dimension'
+  )
 
   const handleSave = () => {
-    const values = form.getFieldsValue();
+    const values = form.getFieldsValue()
     const template = {
       metrics: selectedMetrics,
       chartType,
       chartConfig,
       filters: values,
-    };
-    // 这里可以保存到 localStorage 或发送到后端
-    localStorage.setItem('reportTemplate', JSON.stringify(template));
-    message.success('报表模板保存成功');
-  };
+    }
+    localStorage.setItem('reportTemplate', JSON.stringify(template))
+    message.success('报表模板保存成功')
+  }
 
   const handleMetricChange = (value: string[]) => {
-    setSelectedMetrics(value);
-  };
+    setSelectedMetrics(value)
+  }
 
-  const handleFilterChange = (data: DataPoint[]) => {
-    setFilteredData(data);
-  };
+  // 日期筛选
+  const handleDateFilter = () => {
+    const filtered = applyDateFilter(mockData, dateRange)
+    applyAllFilters(filtered)
+  }
+
+  // 高级筛选
+  const handleAddCondition = () => {
+    setConditions([...conditions, { field: 'date', operator: '=', value: '' }])
+  }
+
+  const handleRemoveCondition = (index: number) => {
+    setConditions(conditions.filter((_, i) => i !== index))
+  }
+
+  const handleConditionChange = (index: number, field: string, value: any) => {
+    const newConditions = [...conditions]
+    newConditions[index] = { ...newConditions[index], [field]: value }
+    setConditions(newConditions)
+  }
+
+  const handleAdvancedFilter = () => {
+    let filtered = applyDateFilter(mockData, dateRange)
+    filtered = applyAdvancedFilter(filtered, conditions)
+    applyAllFilters(filtered)
+  }
+
+  // 数据聚合
+  const handleAggregate = () => {
+    const values = form.getFieldsValue()
+    let data = [...filteredData]
+
+    if (aggregateType === 'dimension') {
+      if (values.dimension && values.metric && values.aggFunc) {
+        data = groupByData(data, {
+          dimension: values.dimension,
+          aggregate: [{ metric: values.metric, func: values.aggFunc }],
+        })
+      }
+    } else {
+      if (values.metric && values.timePeriod && values.timeAggFunc) {
+        data = aggregateByTime(
+          data,
+          values.timePeriod,
+          values.metric,
+          values.timeAggFunc
+        )
+      }
+    }
+    setFilteredData(data)
+  }
+
+  // 应用所有筛选
+  const applyAllFilters = (data: DataPoint[]) => {
+    setFilteredData(data)
+  }
+
+  // 重置所有筛选
+  const handleReset = () => {
+    form.resetFields()
+    setDateRange([null, null])
+    setConditions([])
+    setFilteredData(mockData)
+    message.info('已重置所有筛选')
+  }
 
   return (
     <div className={styles.reportTemplate}>
       <h2>报表模板</h2>
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
-        <Card title="筛选条件配置">
-          <Form form={form} layout="inline">
-            <Form.Item label="选择指标" name="metrics">
-              <Select
-                mode="multiple"
-                style={{ width: 300 }}
-                placeholder="请选择指标"
-                value={selectedMetrics}
-                onChange={handleMetricChange}
-                options={metrics.map((m) => ({
-                  label: `${m.name} (${m.unit || ''})`,
-                  value: m.id,
-                }))}
-              />
-            </Form.Item>
-            <Form.Item label="图表类型" name="chartType">
-              <Select
-                style={{ width: 200 }}
-                value={chartType}
-                onChange={setChartType}
-                options={chartTypeOptions}
-              />
-            </Form.Item>
-          </Form>
-        </Card>
-
-        <Card title="数据筛选">
-          <QueryFilter data={mockData} onFilterChange={handleFilterChange} />
-        </Card>
-
-        <AdvancedFilter data={mockData} onFilterChange={handleFilterChange} />
-
-        <DataAggregation data={filteredData} onAggregated={setFilteredData} />
-
-        <Card
-          title="报表预览"
-          extra={
-            <Space>
-              <ChartConfigPanel
-                chartType={chartType}
-                config={chartConfig}
-                onConfigChange={setChartConfig}
-              />
-              <Button
-                icon={<DownloadOutlined />}
-                onClick={() => {
-                  const selectedMetricList = metrics.filter((m) =>
-                    selectedMetrics.includes(m.id)
-                  );
-                  if (selectedMetricList.length === 0) {
-                    message.warning('请先选择指标');
-                    return;
-                  }
-                  exportToCSV(filteredData, selectedMetricList, '报表数据');
-                }}
-                disabled={selectedMetrics.length === 0}
-              >
-                导出数据
-              </Button>
-              <Button
-                type="primary"
-                icon={<SaveOutlined />}
-                onClick={handleSave}
-              >
-                保存模板
-              </Button>
-            </Space>
-          }
-        >
-          <ChartView
-            data={filteredData}
-            metrics={metrics.filter((m) => selectedMetrics.includes(m.id))}
-            viewMode="chart"
-            chartType={chartType}
-            config={chartConfig}
-          />
-        </Card>
+      <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+        <ConfigCard
+          selectedMetrics={selectedMetrics}
+          chartType={chartType}
+          onMetricChange={handleMetricChange}
+          onChartTypeChange={setChartType}
+          onReset={handleReset}
+          onSave={handleSave}
+        />
+        <FilterCard
+          dateRange={dateRange}
+          conditions={conditions}
+          aggregateType={aggregateType}
+          onDateRangeChange={setDateRange}
+          onDateFilter={handleDateFilter}
+          onAddCondition={handleAddCondition}
+          onRemoveCondition={handleRemoveCondition}
+          onConditionChange={handleConditionChange}
+          onAdvancedFilter={handleAdvancedFilter}
+          onAggregateTypeChange={setAggregateType}
+          onAggregate={handleAggregate}
+        />
+        <PreviewCard
+          selectedMetrics={selectedMetrics}
+          filteredData={filteredData}
+          chartType={chartType}
+          chartConfig={chartConfig}
+          onConfigChange={setChartConfig}
+        />
       </Space>
     </div>
-  );
-};
+  )
+}
 
-export default ReportTemplate;
-
+export default ReportTemplate

@@ -10,8 +10,9 @@ const AppRoutes = () => {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Layout />}>
-          <Route index element={<Navigate to="/dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard />} />
+          <Route index element={<Navigate to="/custom-template" replace />} />
+          <Route path="custom-template" element={<Dashboard />} />
+          <Route path="dashboard" element={<Navigate to="/custom-template" replace />} />
           <Route path="metric-portal" element={<MetricPortal />} />
           <Route path="report-template" element={<ReportTemplate />} />
           <Route path="board" element={<Board />} />

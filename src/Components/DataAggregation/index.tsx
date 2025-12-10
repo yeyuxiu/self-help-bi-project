@@ -1,25 +1,21 @@
-import { useState } from 'react';
-import { Card, Form, Select, Button, Space } from 'antd';
-import { BarChartOutlined } from '@ant-design/icons';
-import { dimensions, AggregateType } from '@/Data/mockData';
-import { groupByData, aggregateByTime } from '@/Utils/dataAggregation';
-import type { DataPoint } from '@/Data/mockData';
-
-interface DataAggregationProps {
-  data: DataPoint[];
-  onAggregated: (data: DataPoint[]) => void;
-}
+import { useState } from 'react'
+import { Card, Form, Select, Button, Space } from 'antd'
+import { BarChartOutlined } from '@ant-design/icons'
+import { dimensions } from '@/Data/mockData'
+import { groupByData, aggregateByTime } from '@/Utils/dataAggregation'
+import type { AggregateKind, DataAggregationProps } from './types'
+import { AGG_FUNC_OPTIONS, AGGREGATE_TYPE_OPTIONS, METRIC_OPTIONS } from './constants'
 
 const DataAggregation = ({ data, onAggregated }: DataAggregationProps) => {
-  const [form] = Form.useForm();
-  const [aggregateType, setAggregateType] = useState<'dimension' | 'time'>('dimension');
+  const [form] = Form.useForm()
+  const [aggregateType, setAggregateType] = useState<AggregateKind>('dimension')
 
   const handleAggregate = () => {
-    const values = form.getFieldsValue();
-    
+    const values = form.getFieldsValue()
+
     if (aggregateType === 'dimension') {
       if (!values.dimension || !values.metric || !values.aggFunc) {
-        return;
+        return
       }
       const aggregated = groupByData(data, {
         dimension: values.dimension,
@@ -29,43 +25,26 @@ const DataAggregation = ({ data, onAggregated }: DataAggregationProps) => {
             func: values.aggFunc,
           },
         ],
-      });
-      onAggregated(aggregated);
+      })
+      onAggregated(aggregated)
     } else {
       if (!values.metric || !values.timePeriod || !values.timeAggFunc) {
-        return;
+        return
       }
       const aggregated = aggregateByTime(
         data,
         values.timePeriod,
         values.metric,
         values.timeAggFunc
-      );
-      onAggregated(aggregated);
+      )
+      onAggregated(aggregated)
     }
-  };
+  }
 
   const handleReset = () => {
-    form.resetFields();
-    onAggregated(data);
-  };
-
-  const metricOptions = [
-    { label: '销售额', value: 'sales' },
-    { label: '订单数', value: 'orders' },
-    { label: '用户数', value: 'users' },
-    { label: '访问量', value: 'visits' },
-    { label: '转化率', value: 'conversion' },
-    { label: '客单价', value: 'avg_price' },
-  ];
-
-  const aggFuncOptions: { label: string; value: AggregateType }[] = [
-    { label: '求和', value: 'sum' },
-    { label: '平均值', value: 'avg' },
-    { label: '最大值', value: 'max' },
-    { label: '最小值', value: 'min' },
-    { label: '计数', value: 'count' },
-  ];
+    form.resetFields()
+    onAggregated(data)
+  }
 
   return (
     <Card
@@ -86,15 +65,7 @@ const DataAggregation = ({ data, onAggregated }: DataAggregationProps) => {
     >
       <Form form={form} layout="inline">
         <Form.Item label="聚合方式">
-          <Select
-            value={aggregateType}
-            onChange={setAggregateType}
-            style={{ width: 150 }}
-            options={[
-              { label: '按维度聚合', value: 'dimension' },
-              { label: '按时间聚合', value: 'time' },
-            ]}
-          />
+          <Select value={aggregateType} onChange={setAggregateType} style={{ width: 150 }} options={AGGREGATE_TYPE_OPTIONS} />
         </Form.Item>
 
         {aggregateType === 'dimension' && (
@@ -110,18 +81,10 @@ const DataAggregation = ({ data, onAggregated }: DataAggregationProps) => {
               />
             </Form.Item>
             <Form.Item label="聚合指标" name="metric">
-              <Select
-                style={{ width: 150 }}
-                placeholder="选择指标"
-                options={metricOptions}
-              />
+              <Select style={{ width: 150 }} placeholder="选择指标" options={METRIC_OPTIONS} />
             </Form.Item>
             <Form.Item label="聚合函数" name="aggFunc">
-              <Select
-                style={{ width: 120 }}
-                placeholder="选择函数"
-                options={aggFuncOptions}
-              />
+              <Select style={{ width: 120 }} placeholder="选择函数" options={AGG_FUNC_OPTIONS} />
             </Form.Item>
           </>
         )}
@@ -129,11 +92,7 @@ const DataAggregation = ({ data, onAggregated }: DataAggregationProps) => {
         {aggregateType === 'time' && (
           <>
             <Form.Item label="聚合指标" name="metric">
-              <Select
-                style={{ width: 150 }}
-                placeholder="选择指标"
-                options={metricOptions}
-              />
+              <Select style={{ width: 150 }} placeholder="选择指标" options={METRIC_OPTIONS} />
             </Form.Item>
             <Form.Item label="时间周期" name="timePeriod">
               <Select
@@ -147,18 +106,14 @@ const DataAggregation = ({ data, onAggregated }: DataAggregationProps) => {
               />
             </Form.Item>
             <Form.Item label="聚合函数" name="timeAggFunc">
-              <Select
-                style={{ width: 120 }}
-                placeholder="选择函数"
-                options={aggFuncOptions}
-              />
+              <Select style={{ width: 120 }} placeholder="选择函数" options={AGG_FUNC_OPTIONS} />
             </Form.Item>
           </>
         )}
       </Form>
     </Card>
-  );
-};
+  )
+}
 
-export default DataAggregation;
+export default DataAggregation
 
