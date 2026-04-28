@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from '@/Layout';
 import Dashboard from '@/Dashboard';
 import MetricPortal from '@/MetricPortal';
@@ -7,7 +7,7 @@ import Board from '@/Board';
 
 const AppRoutes = () => {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Navigate to="/custom-template" replace />} />
@@ -18,7 +18,7 @@ const AppRoutes = () => {
           <Route path="board" element={<Board />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 };
 
