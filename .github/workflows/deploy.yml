@@ -1,0 +1,44 @@
+# 工作流名称
+name: Deploy static content to Pages
+
+on:
+  # 当推送到 master 分支时自动触发
+  push:
+    branches: ["master"]
+  # 允许在 GitHub Actions 页面手动触发部署
+  workflow_dispatch:
+
+# 设置 GITHUB_TOKEN 的权限，以允许部署到 GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 允许同一时间只有一个部署流程在运行
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # 单次部署任务
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # 指定你要上传的静态文件目录，如果是在根目录直接用 '.'
+          path: './dist'
+      
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
