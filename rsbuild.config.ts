@@ -13,6 +13,8 @@ export default defineConfig({
     },
   },
   output: {
+    // 这里的名字必须和你的仓库名一模一样，前后都要加斜杠
+    assetPrefix: '/self-help-bi-project/', 
     // 启用 CSS Modules
     cssModules: {
       // 为所有 .less 文件启用 CSS Modules（排除 node_modules）
